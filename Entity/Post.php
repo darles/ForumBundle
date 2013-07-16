@@ -4,7 +4,6 @@ namespace Darles\Bundle\ForumBundle\Entity;
 
 use Darles\Bundle\ForumBundle\Model\Post as BasePost;
 use Doctrine\ORM\Mapping as ORM;
-use Darles\Bundle\UserBundle\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -26,12 +25,6 @@ class Post extends BasePost
     protected $topic;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Darles\Bundle\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     */
-    private $author;
-
-    /**
      * @ORM\Column(name="message", type="text")
      * @Assert\NotBlank(message="Please write a message")
      *
@@ -49,13 +42,4 @@ class Post extends BasePost
         return 'anonymous';
     }
 
-    public function setAuthor(User $user)
-    {
-        $this->author = $user;
-    }
-
-    public function getAuthor()
-    {
-        return $this->author;
-    }
 }

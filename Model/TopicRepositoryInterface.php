@@ -27,7 +27,7 @@ interface TopicRepositoryInterface extends RepositoryInterface
      * @param boolean $asPaginator Will return a Paginator instance if true
      * @return array|Paginator
      */
-    function findAll($asPaginator);
+    function findAll();
 
     /**
      * Finds all topics matching to the specified Category ordered by their
@@ -37,7 +37,7 @@ interface TopicRepositoryInterface extends RepositoryInterface
      * @param boolean $asPaginator Will return a Paginator instance if true
      * @return array|Paginator
      */
-    function findAllByCategory($category, $asPaginator);
+    function findAllByCategory($category, \Knp\Component\Pager\Paginator $paginator, $page, $limit);
 
     /**
      * Get topics which have the more recent last post
@@ -55,7 +55,7 @@ interface TopicRepositoryInterface extends RepositoryInterface
      * @param boolean $asPaginator Will return a Paginator instance if true
      * @return array|Paginator
      */
-    function search($query, $asPaginator);
+    function search($query, \Knp\Component\Pager\Paginator $paginator, $page, $limit);
 
     /**
      * Increment the number of views of a topic

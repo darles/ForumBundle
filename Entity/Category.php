@@ -41,6 +41,16 @@ class Category extends BaseCategory
     protected $topics;
 
     /**
+     * @ORM\Column(name="numTopics", type="integer")
+     */
+    protected $numTopics;
+
+    /**
+     * @ORM\Column(name="numPosts", type="integer")
+     */
+    protected $numPosts;
+
+    /**
      * Category constructor
      */
     public function __construct()

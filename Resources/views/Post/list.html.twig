@@ -1,17 +1,17 @@
-<ul class="forum_posts_list">
-    {% for post in posts %}
-        <li id="{{ post.number }}">
-            <div class="metas">
-                <div class="author">
-                    <span class="username">{{ post.authorName }}</span>
-                </div>
-                <div class="date">
-                    <span class="createdAt">{{ post.createdAt|date }}</span>
-                </div>
-            </div>
-            <div class="content">
+{% for post in posts %}
+    <table class="table">
+        <tr>
+            <th>{{ 'forum.post.author'|trans }}</th>
+            <th>{{ 'forum.post.date'|trans }}</th>
+        </tr>
+        <tr id="{{ post.number }}">
+            <td>{{ post.authorName }}</td>
+            <td>{{ post.createdAt|date }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">
                 {{ post.message }}
-            </div>
-        </li>
-    {% endfor %}
-</ul>
+            </td>
+        </tr>
+    </table>
+{% endfor %}

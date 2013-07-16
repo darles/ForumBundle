@@ -5,7 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="darles_forum.topics_per_page">20</parameter>
+        <parameter key="darles_forum.paginator.topics_per_page" type="string">2</parameter>
+        <parameter key="darles_forum.paginator.posts_per_page" type="string">2</parameter>
+        <parameter key="darles_forum.paginator.categories_per_page" type="string">2</parameter>
         <parameter key="darles_forum.templating.location.forum">DarlesForumBundle:Forum</parameter>
         <parameter key="darles_forum.templating.location.category">DarlesForumBundle:Category</parameter>
         <parameter key="darles_forum.form.new_topic.class">Darles\Bundle\ForumBundle\Form\NewTopicFormType</parameter>
@@ -15,11 +17,17 @@
         <parameter key="darles_forum.router.url_generator.class">Darles\Bundle\ForumBundle\Router\ForumUrlGenerator</parameter>
         <parameter key="darles_forum.twig.extension.class">Darles\Bundle\ForumBundle\Twig\ForumExtension</parameter>
         <parameter key="darles_forum.form.post.class">Darles\Bundle\ForumBundle\Form\PostFormType</parameter>
+        <parameter key="darles_forum.form.new_topic.class">Darles\Bundle\ForumBundle\Form\NewTopicFormType</parameter>
+        <parameter key="darles_forum.form.post.name">darles_forum_post_form</parameter>
+        <parameter key="darles_forum.form.new_topic.name">darles_forum_new_topic_form</parameter>
+        <parameter key="darles_forum.model.category.class">Darles\Bundle\ForumBundle\Entity\Category</parameter>
+        <parameter key="darles_forum.model.topic.class">Darles\Bundle\ForumBundle\Entity\Topic</parameter>
+        <parameter key="darles_forum.model.post.class">Darles\Bundle\ForumBundle\Entity\Post</parameter>
+        <parameter key="darles_forum.templating.engine" type="string">twig</parameter>
     </parameters>
 
     <services>
-        <service id="darles_forum.form.new_topic" factory-method="create" factory-service="form.factory"
-                 class="Symfony\Component\Form\Form">
+        <service id="darles_forum.form.new_topic" factory-method="create" factory-service="form.factory" class="Symfony\Component\Form\Form">
             <argument type="service" id="darles_forum.form.type.new_topic"/>
         </service>
 
@@ -34,8 +42,7 @@
         </service>
 
         <!-- Post Form -->
-        <service id="darles_forum.form.post" factory-method="create" factory-service="form.factory"
-                 class="Symfony\Component\Form\Form">
+        <service id="darles_forum.form.post" factory-method="create" factory-service="form.factory" class="Symfony\Component\Form\Form">
             <argument type="service" id="darles_forum.form.type.post"/>
         </service>
 
@@ -43,6 +50,33 @@
             <argument>%darles_forum.form.post.name%</argument>
             <argument type="collection"/>
         </service>
+
+        <service id="darles_forum.form.type.new_topic" class="%darles_forum.form.new_topic.class%">
+            <argument>%darles_forum.form.new_topic.name%</argument>
+            <argument type="collection"/>
+        </service>
+
+        <service id="darles_forum.repository.category" class="Darles\Bundle\ForumBundle\Model\CategoryRepositoryInterface" factory-service="darles_forum.object_manager" factory-method="getRepository">
+            <argument type="string">%darles_forum.model.category.class%</argument>
+        </service>
+
+        <!-- Topic Repository Service -->
+        <service id="darles_forum.repository.topic" class="Darles\Bundle\ForumBundle\Model\TopicRepositoryInterface"
+                 factory-service="darles_forum.object_manager" factory-method="getRepository">
+            <argument type="string">%darles_forum.model.topic.class%</argument>
+        </service>
+
+        <!-- Post Repository Service -->
+        <service id="darles_forum.repository.post" class="Darles\Bundle\ForumBundle\Model\PostRepositoryInterface"
+                 factory-service="darles_forum.object_manager" factory-method="getRepository">
+            <argument type="string">%darles_forum.model.post.class%</argument>
+        </service>
+
+        <service id="darles_forum.object_manager" alias="doctrine.orm.entity_manager"/>
+
+        <service id="darles_forum.creator.post" class="%darles_forum.creator.post.class%"/>
+
+        <service id="darles_forum.creator.topic" class="%darles_forum.creator.topic.class%"/>
 
     </services>
 

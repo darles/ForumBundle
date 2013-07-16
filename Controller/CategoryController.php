@@ -4,18 +4,22 @@ namespace Darles\Bundle\ForumBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Request;
 
 class CategoryController extends Controller
 {
     /**
      * @return mixed
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
-        $categories = $this->get('darles_forum.repository.category')->findAll();
+        $paginator = $this->container->get('knp_paginator');
 
-        $template = sprintf('%s:list.html.%s', $this->container->getParameter('darles_forum.templating.location.category'), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array('categories' => $categories));
+        $categories = $this->get('darles_forum.repository.category')->findAllWithPagination($paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.topics_per_page'));
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Category:list.html.' . $this->getEngine(), array(
+            'categories' => $categories
+        ));
     }
 
     /**
@@ -23,15 +27,16 @@ class CategoryController extends Controller
      * @return mixed
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function showAction($slug)
+    public function showAction(Request $request, $slug)
     {
-        $topicsLimit = $this->container->getParameter('darles_forum.topics_per_page');
-        $category = $this->get('darles_forum.repository.category')->findOneBy(array('slug' => $slug));
         $paginator = $this->container->get('knp_paginator');
+        $category = $this->get('darles_forum.repository.category')->findOneBy(array('slug' => $slug));
 
         if (!$category) {
             throw new NotFoundHttpException(sprintf('The category %s does not exist.', $slug));
         }
+
+        $posts = $this->get('darles_forum.repository.post')->findRecentPosts($paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.topics_per_page'));
 
         $form = $this->get('darles_forum.form.new_topic');
         $topic = $this->get('darles_forum.repository.topic')->createNewTopic();
@@ -42,12 +47,12 @@ class CategoryController extends Controller
 
         $form->setData($topic);
 
-        $template = sprintf('%s:show.%s.%s', $this->container->getParameter('darles_forum.templating.location.category'), $this->get('request')->getRequestFormat(), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Category:show.html.' . $this->getEngine(), array(
             'category' => $category,
-            'posts'   => $posts,
-            'form'   => $form->createView(),
-            'page' => 1
+            'posts' => $posts,
+            'form' => $form->createView(),
+            'pagination' => 1
         ));
     }
 
@@ -83,11 +88,9 @@ class CategoryController extends Controller
         return $this->forward('DarlesForumBundle:Topic:create', array('category' => $category));
     }
 
-    /**
-     * @return mixed
-     */
-    protected function getRenderer()
+    protected function getEngine()
     {
         return $this->container->getParameter('darles_forum.templating.engine');
     }
+
 }

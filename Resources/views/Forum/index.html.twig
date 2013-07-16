@@ -1,16 +1,12 @@
 {% extends 'DarlesForumBundle::layout.html.twig' %}
-{% block title %}Simple forum bundle for Symfony{% endblock %}
+{% block title %}{{ 'forum.main.title'|trans }}{% endblock %}
 {% block content %}
     <div class="forum forum_index">
         <ul class="crumbs">
-            <li>Forum</li>
+            <li>{{ 'forum.main.title'|trans }}</li>
         </ul>
-        {#<div class="main topics">#}
-        {#<h2>Latest topics</h2>#}
-        {#{% include 'DarlesForumBundle:Topic:list.html.twig' %}#}
-        {#</div>#}
         <div class="side categories">
-            <h2>Categories</h2>
+            <h2>{{ 'forum.main.categories'|trans }}</h2>
             {% include 'DarlesForumBundle:Category:list.html.twig' %}
         </div>
     </div>

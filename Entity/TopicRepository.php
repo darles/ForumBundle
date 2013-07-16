@@ -3,8 +3,6 @@
 namespace Darles\Bundle\ForumBundle\Entity;
 
 use Darles\Bundle\ForumBundle\Model\TopicRepositoryInterface;
-use Pagerfanta\Pagerfanta;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
 
 class TopicRepository extends ObjectRepository implements TopicRepositoryInterface
 {
@@ -30,35 +28,34 @@ class TopicRepository extends ObjectRepository implements TopicRepositoryInterfa
     /**
      * @see TopicRepositoryInterface::findAll
      */
-    public function findAll($asPaginator = false)
+    public function findAllWithPagination(\Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
-        $query = $this->createQueryBuilder('topic')
+        $qb = $this->createQueryBuilder('topic')
             ->orderBy('topic.isPinned', 'DESC')
-            ->addOrderBy('topic.pulledAt', 'DESC')
-            ->getQuery();
+            ->addOrderBy('topic.pulledAt', 'DESC');
 
-        if ($asPaginator) {
-            return new Pagerfanta(new DoctrineORMAdapter($query));
-        } else {
-            return $query->execute();
-        }
+        return $paginator->paginate(
+            $qb->getquery(),
+            $page,
+            $limit
+        );
     }
 
     /**
      * @see TopicRepositoryInterface::findAllByCategory
      */
-    public function findAllByCategory($category, $asPaginator = false)
+    public function findAllByCategory($category, \Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
         $qb = $this->createQueryBuilder('topic');
         $qb->orderBy('topic.isPinned', 'DESC')
             ->addOrderBy('topic.pulledAt', 'DESC')
             ->where($qb->expr()->eq('topic.category', $category->getId()));
 
-        if ($asPaginator) {
-            return new Pagerfanta(new DoctrineORMAdapter($qb->getQuery()));
-        } else {
-            return $qb->getQuery()->execute();
-        }
+        return $paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            $limit
+        );
     }
 
     /**
@@ -76,16 +73,16 @@ class TopicRepository extends ObjectRepository implements TopicRepositoryInterfa
     /**
      * @see TopicRepositoryInterface::search
      */
-    public function search($query, $asPaginator = false)
+    public function search($query, \Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
         $qb = $this->createQueryBuilder('topic');
-        $qb->orderBy('topic.pulledAt DESC')->where($db->expr()->like('topic.subject', '%' . $query . '%'));
+        $qb->orderBy('topic.pulledAt DESC')->where($qb->expr()->like('topic.subject', '%' . $query . '%'));
 
-        if ($asPaginator) {
-            return new Pagerfanta(new DoctrineORMAdapter($qb->getQuery()));
-        }
-
-        return $qb->getQuery->execute();
+        return $paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            $limit
+        );
     }
 
     /**

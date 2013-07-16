@@ -20,7 +20,7 @@ interface PostRepositoryInterface extends RepositoryInterface
      * @param boolean $asPaginator Will return a Paginator instance if true
      * @return array|Paginator
      */
-    function findAllByTopic($topic, $asPaginator);
+    function findAllByTopic($topic, \Knp\Component\Pager\Paginator $paginator, $page, $limit);
 
     /**
      * Finds more recent posts matching the specified Topic
@@ -39,7 +39,7 @@ interface PostRepositoryInterface extends RepositoryInterface
      * @param boolean $asPaginator Will return a Paginator instance if true
      * @return array|Paginator
      */
-    function search($query, $asPaginator);
+    function search($query, \Knp\Component\Pager\Paginator $paginator, $page, $limit);
 
     /**
      * Gets the post that preceds this one

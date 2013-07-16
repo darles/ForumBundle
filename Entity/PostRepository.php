@@ -3,8 +3,6 @@
 namespace Darles\Bundle\ForumBundle\Entity;
 
 use Darles\Bundle\ForumBundle\Model\PostRepositoryInterface;
-use Pagerfanta\Pagerfanta;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
 
 class PostRepository extends ObjectRepository implements PostRepositoryInterface
 {
@@ -19,37 +17,37 @@ class PostRepository extends ObjectRepository implements PostRepositoryInterface
     /**
      * @see PostRepositoryInterface::findAllByTopic
      */
-    public function findAllByTopic($topic, $asPaginator = false)
+    public function findAllByTopic($topic, \Knp\Component\Pager\Paginator $paginator = null, $page = 0, $limit = 0)
     {
         $qb = $this->createQueryBuilder('post')
             ->orderBy('post.createdAt')
             ->where('post.topic = :topic')
             ->setParameter('topic', $topic->getId());
 
-        if ($asPaginator) {
-            return new Pagerfanta(new DoctrineORMAdapter($qb->getQuery()));
+        if (is_null($paginator)) {
+            return $qb->getQuery()->execute();
+        } else {
+            return $paginator->paginate(
+                $qb->getQuery(),
+                $page,
+                $limit
+            );
         }
-
-        return $qb->getQuery()->execute();
     }
 
     /**
      * @see PostRepositoryInterface::findRecentPosts
      */
-    public function findRecentPosts($number)
+    public function findRecentPosts(\Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
-        return $this->findRecentPostsQuery($number)->getQuery()->execute();
-    }
-
-    /**
-     * @see PostRepositoryInterface::findRecentPosts
-     */
-    public function findRecentPostsQuery($number)
-    {
-        return $this->createQueryBuilder('post')
+        $qb = $this->createQueryBuilder('post')
             ->orderBy('post.createdAt', 'DESC')
-            ->groupBy('post.topic')
-            ->setMaxResults($number);
+            ->groupBy('post.topic');
+
+        return $paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            $limit);
     }
 
     /**
@@ -69,18 +67,17 @@ class PostRepository extends ObjectRepository implements PostRepositoryInterface
     /**
      * @see PostRepositoryInterface::search
      */
-    public function search($query, $asPaginator = false)
+    public function search($query, \Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
         $qb = $this->createQueryBuilder('post');
         $qb
             ->where($qb->expr()->like('post.message', $qb->expr()->literal('%' . $query . '%')))
             ->orderBy('post.createdAt');
 
-        if ($asPaginator) {
-            return new Pagerfanta(new DoctrineORMAdapter($qb->getQuery()));
-        }
-
-        return $qb->getQuery()->execute();
+        return $paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            $limit);
     }
 
     /**

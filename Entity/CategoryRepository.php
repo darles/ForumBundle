@@ -6,6 +6,7 @@ use Darles\Bundle\ForumBundle\Model\CategoryRepositoryInterface;
 
 class CategoryRepository extends ObjectRepository implements CategoryRepositoryInterface
 {
+
     /**
      * @see CategoryRepositoryInterface::findOneBySlug
      */
@@ -17,13 +18,17 @@ class CategoryRepository extends ObjectRepository implements CategoryRepositoryI
     /**
      * @see CategoryRepositoryInteface::findAll
      */
-    public function findAll()
+    public function findAllWithPagination(\Knp\Component\Pager\Paginator $paginator, $page, $limit)
     {
-        return $this->createQueryBuilder('c')
+        $qb = $this->createQueryBuilder('c')
             ->select('c')
-            ->orderBy('c.position')
-            ->getQuery()
-            ->execute();
+            ->orderBy('c.position');
+
+        return $paginator->paginate(
+            $qb->getQuery(),
+            $page,
+            $limit
+        );
     }
 
     /**

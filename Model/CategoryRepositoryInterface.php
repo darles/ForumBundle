@@ -7,6 +7,7 @@ interface CategoryRepositoryInterface extends RepositoryInterface
     /**
      * Finds a category by its slug
      *
+     * @param $slug
      * @return Category or NULL whether the specified slug does not match any category
      */
     function findOneBySlug($slug);

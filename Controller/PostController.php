@@ -10,25 +10,29 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class PostController extends Controller
 {
+
+    /**
+     * @param $categorySlug
+     * @param $slug
+     * @return mixed
+     */
     public function newAction($categorySlug, $slug)
     {
         $topic = $this->findTopicOr404($categorySlug, $slug);
         $form = $this->get('darles_forum.form.post');
-        $template = sprintf(
-            '%s:new.html.%s',
-            $this->container->getParameter('darles_forum.templating.location.post'),
-            $this->getRenderer()
-        );
 
-        return $this->render(
-            $template,
-            array(
-                'form' => $form->createView(),
-                'topic' => $topic,
-            )
-        );
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Post:new.html.' . $this->getEngine(), array(
+            'form' => $form->createView(),
+            'topic' => $topic,
+        ));
     }
 
+    /**
+     * @param $categorySlug
+     * @param $slug
+     * @return RedirectResponse
+     */
     public function createAction($categorySlug, $slug)
     {
         $topic = $this->findTopicOr404($categorySlug, $slug);
@@ -38,8 +42,8 @@ class PostController extends Controller
         $form->handleRequest($this->get('request'));
 
         if (!$form->isValid()) {
-            $template = sprintf('%s:new.html.%s', $this->container->getParameter('darles_forum.templating.location.post'), $this->getRenderer());
-            return $this->get('templating')->renderResponse('DarlesForumBundle:Post:new.html.' . $this->getRenderer(), array(
+            return $this->container->get('templating')->renderResponse(
+                'DarlesForumBundle:Post:new.html.' . $this->getEngine(), array(
                 'form' => $form->createView(),
                 'topic' => $topic,
             ));
@@ -48,7 +52,6 @@ class PostController extends Controller
         $post = $form->getData();
         $post->setTopic($topic);
         $this->get('darles_forum.creator.post')->create($post);
-        $this->get('darles_forum.blamer.post')->blame($post);
 
         $objectManager = $this->get('darles_forum.object_manager');
         $objectManager->persist($post);
@@ -60,6 +63,11 @@ class PostController extends Controller
         return new RedirectResponse($url);
     }
 
+    /**
+     * @param $id
+     * @return RedirectResponse
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     public function deleteAction($id)
     {
         $post = $this->get('darles_forum.repository.post')->find($id);
@@ -74,6 +82,12 @@ class PostController extends Controller
         return new RedirectResponse($this->get('darles_forum.router.url_generator')->urlForPost($precedentPost));
     }
 
+    /**
+     * @param $categorySlug
+     * @param $slug
+     * @return mixed
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     protected function findTopicOr404($categorySlug, $slug)
     {
         $category = $this
@@ -102,7 +116,10 @@ class PostController extends Controller
         return $topic;
     }
 
-    protected function getRenderer()
+    /**
+     * @return mixed
+     */
+    protected function getEngine()
     {
         return $this->container->getParameter('darles_forum.templating.engine');
     }

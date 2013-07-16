@@ -2,19 +2,23 @@
 <table class="table">
     <tr>
         <th>{{ 'forum.topic.title'|trans }}</th>
-        <th>{{ 'forum.topic.count'|trans }}</th>
+        <th>{{ 'forum.topic.num_posts'|trans }}</th>
         <th>{{ 'forum.topic.last_post'|trans }}</th>
-        <th>{{ 'forum.topic.topic_author'|trans }}</th>
+        <th>{{ 'forum.topic.created'|trans }}</th>
     </tr>
     {% for post in posts %}
         <tr>
             <td><a href="{{ forum_urlForTopic(post.topic) }}">{{ post.topic.subject }}</a><br/>Susijusios rubrikos</td>
             <td>{{ post.topic.numPosts }}</td>
-            <td>{{ post.author }} ONLINE<br/>{{ post.createdAt|time_ago }}</td>
-            <td>{{ post.topic.authorName }} ONLINE<br/>{{ post.topic.createdAt|time_ago }}</td>
+            <td>{{ post.authorName }} <br/>{{ post.createdAt|date }}</td>
+            <td>{{ post.topic.authorName }} <br/>{{ post.topic.createdAt|date }}</td>
         </tr>
     {% endfor %}
 </table>
+
+<div class="navigation">
+    {{ knp_pagination_render(posts) }}
+</div>
 
 <div id="#new_topic">
     {% include 'DarlesForumBundle:Topic:new.html.twig' %}

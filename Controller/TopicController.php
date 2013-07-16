@@ -8,9 +8,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Darles\Bundle\ForumBundle\Model\Topic;
 use Darles\Bundle\ForumBundle\Model\Category;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class TopicController extends Controller
 {
+    /**
+     * @param Category $category
+     * @return mixed
+     */
     public function newAction(Category $category = null)
     {
         $form = $this->get('darles_forum.form.new_topic');
@@ -20,13 +25,17 @@ class TopicController extends Controller
         }
         $form->setData($topic);
 
-        $template = sprintf('%s:new.html.%s', $this->container->getParameter('darles_forum.templating.location.topic'), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Topic:new.html.' . $this->getEngine(), array(
             'form' => $form->createView(),
             'category' => $category
         ));
     }
 
+    /**
+     * @param Category $category
+     * @return RedirectResponse
+     */
     public function createAction(Category $category = null)
     {
         $form = $this->get('darles_forum.form.new_topic');
@@ -34,18 +43,15 @@ class TopicController extends Controller
 
         $topic = $form->getData();
         if (!$form->isValid()) {
-            $template = sprintf('%s:new.html.%s', $this->container->getParameter('darles_forum.templating.location.topic'), $this->getRenderer());
-            return $this->get('templating')->renderResponse('DarlesForumBundle:Topic:new.html.' . $this->getRenderer(), array(
+            return $this->container->get('templating')->renderResponse(
+                'DarlesForumBundle:Topic:new.html.' . $this->getEngine(), array(
                 'form' => $form->createView(),
                 'category' => $category
             ));
         }
 
         $this->get('darles_forum.creator.topic')->create($topic);
-        //$this->get('darles_forum.blamer.topic')->blame($topic);
-
         $this->get('darles_forum.creator.post')->create($topic->getFirstPost());
-        $this->get('darles_forum.blamer.post')->blame($topic->getFirstPost());
 
         $objectManager = $this->get('darles_forum.object_manager');
         $objectManager->persist($topic);
@@ -58,43 +64,40 @@ class TopicController extends Controller
         return new RedirectResponse($url);
     }
 
-    public function listAction($categorySlug, array $pagerOptions)
+    /**
+     * @param $categorySlug
+     * @param array $pagerOptions
+     * @return mixed
+     */
+    public function listAction(Request $request, $categorySlug)
     {
+        $paginator = $this->container->get('knp_paginator');
         if (null === $categorySlug) {
             $category = null;
-            $topics = $this->get('darles_forum.repository.topic')->findAll(true);
+            $topics = $this->get('darles_forum.repository.topic')->findAllWithPagination($paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.posts_per_page'));
         } else {
             $category = $this->findCategoryOr404($categorySlug);
-            $topics = $this->get('darles_forum.repository.topic')->findAllByCategory($category, true);
+            $topics = $this->get('darles_forum.repository.topic')->findAllByCategory($category, $paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.posts_per_page'));
         }
 
-        $topics->setCurrentPage($pagerOptions['page']);
-        $topics->setMaxPerPage($this->container->getParameter('darles_forum.paginator.topics_per_page'));
 
-        $template = sprintf('%s:list.%s.%s', $this->container->getParameter('darles_forum.templating.location.topic'), $this->get('request')->getRequestFormat(), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Topic:list.html.' . $this->getEngine(), array(
             'topics' => $topics,
             'category' => $category,
-            'pagerOptions' => $pagerOptions
         ));
     }
 
-    public function showAction($categorySlug, $slug)
+    public function showAction(Request $request, $categorySlug, $slug)
     {
+        $paginator = $this->container->get('knp_paginator');
         $topic = $this->findTopic($categorySlug, $slug);
         $this->get('darles_forum.repository.topic')->incrementTopicNumViews($topic);
 
-        if ('html' === $this->get('request')->getRequestFormat()) {
-            $page = $this->get('request')->query->get('page', 1);
-            $posts = $this->get('darles_forum.repository.post')->findAllByTopic($topic, true);
-            $posts->setCurrentPage($page);
-            $posts->setMaxPerPage($this->container->getParameter('darles_forum.paginator.posts_per_page'));
-        } else {
-            $posts = $this->get('darles_forum.repository.post')->findRecentByTopic($topic, 30);
-        }
+        $posts = $this->get('darles_forum.repository.post')->findAllByTopic($topic, $paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.posts_per_page'));
 
-        $template = sprintf('%s:show.%s.%s', $this->container->getParameter('darles_forum.templating.location.topic'), $this->get('request')->getRequestFormat(), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Topic:show.html.' . $this->getEngine(), array(
             'topic' => $topic,
             'posts' => $posts
         ));
@@ -175,5 +178,10 @@ class TopicController extends Controller
         }
 
         return $category;
+    }
+
+    protected function getEngine()
+    {
+        return $this->container->getParameter('darles_forum.templating.engine');
     }
 }

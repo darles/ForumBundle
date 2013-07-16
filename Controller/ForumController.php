@@ -5,16 +5,18 @@ namespace Darles\Bundle\ForumBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Darles\Bundle\ForumBundle\Form\SearchFormType;
 use Darles\Bundle\ForumBundle\Search\Search;
+use Symfony\Component\HttpFoundation\Request;
 
 class ForumController extends Controller
 {
-    public function indexAction()
+    public function indexAction(Request $request)
     {
-        $categories = $this->get('darles_forum.repository.category')->findAll();
-        $template = sprintf('%s:index.html.%s', $this->container->getParameter('darles_forum.templating.location.forum'), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
-            'categories' => $categories,
-            'page' => $this->get('request')->query->get('page', 1)
+        $paginator = $this->container->get('knp_paginator');
+        $categories = $this->get('darles_forum.repository.category')->findAllWithPagination($paginator, $request->get('page', 1), $this->container->getParameter('darles_forum.paginator.categories_per_page'));
+
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Forum:index.html.' . $this->getEngine(), array(
+            'categories' => $categories
         ));
     }
 
@@ -30,18 +32,18 @@ class ForumController extends Controller
             $page = $this->get('request')->query->get('page', 1);
             $results = $this->get('darles_forum.repository.post')->search($query, true);
             $results->setCurrentPage($page);
-            $results->setMaxPerPage($this->container->getParameter('darles_forum.paginator.search_results_per_page'));
+            $results->setMaxPerPage();
         }
 
-        $template = sprintf('%s:search.html.%s', $this->container->getParameter('darles_forum.templating.location.forum'), $this->getRenderer());
-        return $this->get('templating')->renderResponse($template, array(
+        return $this->container->get('templating')->renderResponse(
+            'DarlesForumBundle:Forum:search.html.' . $this->getEngine(), array(
             'form' => $form->createView(),
             'results' => $results,
             'query' => $query
         ));
     }
 
-    protected function getRenderer()
+    protected function getEngine()
     {
         return $this->container->getParameter('darles_forum.templating.engine');
     }

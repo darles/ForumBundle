@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="darles_forum.topics_per_page">20</parameter>
+        <parameter key="darles_forum.templating.location.forum">DarlesForumBundle:Forum</parameter>
+        <parameter key="darles_forum.templating.location.category">DarlesForumBundle:Category</parameter>
+        <parameter key="darles_forum.form.new_topic.class">Darles\Bundle\ForumBundle\Form\NewTopicFormType</parameter>
+        <parameter key="darles_forum.model.topic">Darles\Bundle\ForumBundle\Form\NewTopicFormType</parameter>
+        <parameter key="darles_forum.creator.topic.class">Darles\Bundle\ForumBundle\Creator\TopicCreator</parameter>
+        <parameter key="darles_forum.creator.post.class">Darles\Bundle\ForumBundle\Creator\PostCreator</parameter>
+        <parameter key="darles_forum.router.url_generator.class">Darles\Bundle\ForumBundle\Router\ForumUrlGenerator</parameter>
+        <parameter key="darles_forum.twig.extension.class">Darles\Bundle\ForumBundle\Twig\ForumExtension</parameter>
+        <parameter key="darles_forum.form.post.class">Darles\Bundle\ForumBundle\Form\PostFormType</parameter>
+    </parameters>
+
+    <services>
+        <service id="darles_forum.form.new_topic" factory-method="create" factory-service="form.factory"
+                 class="Symfony\Component\Form\Form">
+            <argument type="service" id="darles_forum.form.type.new_topic"/>
+        </service>
+
+        <service id="darles_forum.twig.extension" class="%darles_forum.twig.extension.class%" public="false">
+            <argument type="service" id="darles_forum.router.url_generator"/>
+            <tag name="twig.extension"/>
+        </service>
+
+        <service id="darles_forum.router.url_generator" class="%darles_forum.router.url_generator.class%">
+            <argument type="service" id="router"/>
+            <argument>%darles_forum.paginator.posts_per_page%</argument>
+        </service>
+
+        <!-- Post Form -->
+        <service id="darles_forum.form.post" factory-method="create" factory-service="form.factory"
+                 class="Symfony\Component\Form\Form">
+            <argument type="service" id="darles_forum.form.type.post"/>
+        </service>
+
+        <service id="darles_forum.form.type.post" class="%darles_forum.form.post.class%">
+            <argument>%darles_forum.form.post.name%</argument>
+            <argument type="collection"/>
+        </service>
+
+    </services>
+
+</container>

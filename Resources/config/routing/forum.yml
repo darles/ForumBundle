@@ -1,0 +1,19 @@
+darles_forum_categories:
+    resource: "@DarlesForumBundle/Resources/config/routing/category.yml"
+    prefix: /category
+
+darles_forum_posts:
+    resource: "@DarlesForumBundle/Resources/config/routing/post.yml"
+    prefix: /post
+
+darles_forum_topics:
+    resource: "@DarlesForumBundle/Resources/config/routing/topic.yml"
+    prefix: /topic
+
+darles_forum_index:
+    pattern: /
+    defaults: { _controller: DarlesForumBundle:Forum:index }
+
+darles_forum_search:
+    pattern: /search
+    defaults: { _controller: DarlesForumBundle:Forum:search }

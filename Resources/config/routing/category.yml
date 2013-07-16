@@ -1,0 +1,17 @@
+darles_forum_category_list:
+    pattern: /
+    defaults: { _controller: DarlesForumBundle:Category:list }
+
+darles_forum_category_show:
+    pattern: /{slug}
+    defaults: { _controller: DarlesForumBundle:Category:show }
+
+darles_forum_category_topic_new:
+    pattern: /{slug}/topic/new
+    defaults: { _controller: DarlesForumBundle:Category:topicNew }
+    methods:  [GET]
+
+darles_forum_category_topic_create:
+    pattern: /{slug}/topic/new
+    defaults: { _controller: DarlesForumBundle:Category:topicCreate }
+    methods:  [POST]

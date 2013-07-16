@@ -1,0 +1,15 @@
+{% extends 'DarlesForumBundle::layout.html.twig' %}
+{% block title %}Topics List {% endblock %}
+{% block content %}
+    <div class="forum category_show">
+        <ul class="crumbs">
+            <li><a href="{{ path('darles_forum_index') }}">Forum</a></li>
+            <li>{{ category.name }}</li>
+        </ul>
+        <div class="main topics">
+            <h2>{{ category.name }}</h2>
+            {#<a href="{{ forum_urlForCategoryAtomFeed(category) }}" title="Atom feed" class="feed atom">Atom feed</a>#}
+            {% include 'DarlesForumBundle:Topic:list.html.twig' %}
+        </div>
+    </div>
+{% endblock %}

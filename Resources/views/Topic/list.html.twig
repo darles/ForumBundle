@@ -1,0 +1,21 @@
+<a href="#new_topic" class="btn">{{ 'forum.new_topic'|trans }}</a>
+<table class="table">
+    <tr>
+        <th>{{ 'forum.topic.title'|trans }}</th>
+        <th>{{ 'forum.topic.count'|trans }}</th>
+        <th>{{ 'forum.topic.last_post'|trans }}</th>
+        <th>{{ 'forum.topic.topic_author'|trans }}</th>
+    </tr>
+    {% for post in posts %}
+        <tr>
+            <td><a href="{{ forum_urlForTopic(post.topic) }}">{{ post.topic.subject }}</a><br/>Susijusios rubrikos</td>
+            <td>{{ post.topic.numPosts }}</td>
+            <td>{{ post.author }} ONLINE<br/>{{ post.createdAt|time_ago }}</td>
+            <td>{{ post.topic.authorName }} ONLINE<br/>{{ post.topic.createdAt|time_ago }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<div id="#new_topic">
+    {% include 'DarlesForumBundle:Topic:new.html.twig' %}
+</div>

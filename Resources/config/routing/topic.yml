@@ -1,0 +1,22 @@
+darles_forum_topic_show:
+    pattern: /{categorySlug}/{slug}
+    defaults: { _controller: DarlesForumBundle:Topic:show }
+    requirements:
+        id: \w+
+
+darles_forum_topic_post_new:
+    pattern: /{categorySlug}/{slug}/reply
+    defaults: { _controller: DarlesForumBundle:Topic:postNew }
+    methods: [GET]
+
+darles_forum_topic_post_create:
+    pattern: /{categorySlug}/{slug}/reply
+    defaults: { _controller: DarlesForumBundle:Topic:postCreate }
+    methods: [POST]
+
+darles_forum_topic_delete:
+    pattern: /delete/{id}
+    defaults: { _controller: DarlesForumBundle:Topic:delete }
+    requirements:
+        id: \w+
+

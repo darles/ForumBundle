@@ -1,0 +1,22 @@
+{% extends 'DarlesForumBundle::layout.html.twig' %}
+{% block title %}Search in forum{% endblock %}
+{% block content %}
+    <div class="forum forum_search">
+        <ul class="crumbs">
+            <li>Forum</li>
+        </ul>
+        <form class="clearfix" action="{{ url('darles_forum_search') }}" method="get">
+            <div>
+                <label for="q">{{ form_label(form.query) }}</label>
+                <input type="text" name="q" value="{{ query }}"/>
+            </div>
+            <div>
+                <button type="submit" value="Search">Search</button>
+            </div>
+        </form>
+
+        <div class="main topic">
+            {% include 'DarlesForumBundle:Post:list.html.twig' with {'posts': results } %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="kimba.lt" default="build">
+ <target name="build" depends="prepare,lint,phploc,phpcpd" />
+
+ <target name="clean" description="Cleanup build artifacts">
+  <delete dir="${basedir}/build/api" includeemptydirs="true" quiet="true" />
+  <delete dir="${basedir}/build/code-browser" includeemptydirs="true" quiet="true" />
+  <delete dir="${basedir}/build/coverage" includeemptydirs="true" quiet="true" />
+  <delete dir="${basedir}/build/logs" includeemptydirs="true" quiet="true" />
+  <delete dir="${basedir}/build/pdepend" includeemptydirs="true" quiet="true" />
+ </target>
+
+ <target name="prepare" depends="clean"
+         description="Prepare for build">
+  <mkdir dir="${basedir}/build/api"/>
+  <mkdir dir="${basedir}/build/code-browser"/>
+  <mkdir dir="${basedir}/build/coverage"/>
+  <mkdir dir="${basedir}/build/logs"/>
+  <mkdir dir="${basedir}/build/pdepend"/>
+ </target>
+ 
+  <target name="lint">
+  <apply executable="php" failonerror="true">
+   <arg value="-l" />
+   <fileset dir="${basedir}">
+    <include name="**/*.php" />
+    <modified />
+   </fileset>
+  </apply>
+ </target>
+
+  <target name="phploc" description="Measure project size using PHPLOC">
+  <exec executable="phploc">
+   <arg value="--log-csv" />
+   <arg value="${basedir}/build/logs/phploc.csv" />
+   <arg path="${basedir}/src" />
+  </exec>
+ </target>
+
+ <target name="phpcpd" description="Find duplicate code using PHPCPD">
+  <exec executable="phpcpd">
+   <arg value="--log-pmd" />
+   <arg value="${basedir}/build/logs/pmd-cpd.xml" />
+   <arg path="${basedir}" />
+  </exec>
+ </target>
+</project>
